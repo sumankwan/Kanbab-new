@@ -1,0 +1,207 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="444938398854-kp9g9gmtbuuln5v5r8usi3io3bvfjenk.apps.googleusercontent.com">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <style>
+        body {background-image: url("./src/assets/login-form.jpg");}
+        .scroll{ overflow-x: hidden; overflow-y: auto;}
+        .card-container{position: relative;}
+        .category-container{background: silver;}
+        #form-header {padding-bottom: 35px;}
+        .container {margin-top: 25px;}
+        .g-signin2 {margin: auto; width: 12.5%;}
+    </style>
+    <title>Kanban</title>
+</head>
+<body>
+    <div id="app">
+
+        <section id="navbar" v-if="pageName !== 'login'">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <button class="btn-warning" style="margin-top: 12.5px" v-on:click="addTaskForm">Add a card</button>
+                <div class="collapse navbar-collapse d-flex flex-row-reverse" id="navbarSupportedContent">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" v-on:click="logout">Logout</button>
+                    <span class="bg-warning" style="margin-right: 5px;">{{ login_email }}</span>   
+                </div>
+            </nav>
+        </section>
+
+        <section id="register-page" v-if="pageName === 'register'">
+            <div class="container" id="form-container">
+                <div class="card">
+                    <div id="form-header">
+                        <h5 class="card-header info-color white-text text-center py-4">
+                        <strong>Register</strong>
+                        </h5>
+                    </div>
+                    <div class="card-body px-lg-5 pt-0">
+                        <form class="text-center" style="color: #757575;" action="#!">
+                    
+                            <div class="md-form">
+                                <input type="email" v-model="register_email" class="form-control">
+                                <label for="materialLoginFormEmail">E-mail</label>
+                            </div>
+                            
+                            <div class="md-form">
+                                <input type="password" v-model="register_password" class="form-control">
+                                <label for="materialLoginFormPassword">Password</label>
+                            </div>
+                    
+                            <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" v-on:click="register">Register</button>
+                            
+                            <button type="button" class="btn btn-danger" v-on:click="checkAuth">Back</button>
+                    
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="login-page" v-if="pageName === 'login'">
+            <div class="container" id="form-container">
+                <h3 class="text-center bg-warning">“Decide the outer boundaries of the kanban system. It is often best to limit this to the immediate span of political control. Do not force visualization, transparency, and WIP limits on any department that does not volunteer to collaborate.”  ~ David J. Anderson</h3><br>
+                <div class="card">
+                    <div id="form-header">
+                        <h5 class="card-header info-color white-text text-center py-4">
+                        <strong>Sign in</strong>
+                        </h5>
+                    </div>
+                    <div class="card-body px-lg-5 pt-0">
+                        <form class="text-center" style="color: #757575;" action="#!">
+                    
+                            <div class="md-form">
+                                <input type="email" class="form-control" placeholder="input your email" v-model="login_email">
+                                <label for="materialLoginFormEmail">E-mail</label>
+                            </div>
+                            
+                            <div class="md-form">
+                                <input type="password" class="form-control" placeholder="input your password" v-model="login_password">
+                                <label for="materialLoginFormPassword">Password</label>
+                            </div>
+                    
+                            <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" v-on:click="login">Sign in</button>
+        
+                            <p>Not a user?
+                                <br>
+                                <button v-on:click="registerForm" class="btn btn-success">Register</button>
+                            </p>
+                    
+                            <p>or sign in with:</p>
+                            <div class="g-signin2" data-onsuccess="onSignIn"></div><br>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-page" v-if="pageName === 'home'">
+            <div style="margin-right: 45px; margin-left: 45px">
+                <div class="row" style="margin-top: 25px;">
+                    <div 
+                        class="col-3" 
+                        v-for="(category, index) in categories"
+                        :key="index">
+                        <div class="card" >
+                            <div class="card-body category-container rounded">
+                                <h4 class="card-title">{{ category.category }}</h4>
+                                <div style="position: relative; height: 65vh; overflow-y: auto;">
+                                    <div class="container">
+                                        <div 
+                                            class="card-body bg-light mb-3 border-light rounded card-container" 
+                                            v-for="task in filteredCategory(category.category)"
+                                            :key="task.id">
+                                            <!-- <form action=""> -->
+                                                <h4 class="card-text">{{ task.title }}</h4>
+                                                <p class="card-text">Assignee: {{ task.User.email }}</p>
+                                                <button class="glyphicon glyphicon-pencil" v-on:click="updateTaskForm(task.id)"></button>
+                                                <button class="glyphicon glyphicon-remove" v-on:click="deleteTask(task.id)"></button>
+                                            <!-- </form> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="addform-page" v-if="pageName === 'addform'" >
+            <div class="container" id="form-container">
+                <div class="card">
+                    <div id="form-header">
+                        <h5 class="card-header info-color white-text text-center py-4">
+                        <strong>Add task</strong>
+                        </h5>
+                    </div>
+                    <div class="card-body px-lg-5 pt-0">
+                        <form class="text-center" style="color: #757575;" action="#!" @submit.prevent="addTask">
+                    
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" id="inputGroup-sizing-sm">Category</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" v-model="add_category">
+                            </div>
+
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text">Title</span>
+                                </div>
+                                <textarea class="form-control" aria-label="With textarea" v-model="add_title"></textarea>
+                            </div>
+
+                            <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="updateform-page" v-if="pageName === 'updateform'" >
+            <div class="container" id="form-container">
+                <div class="card">
+                    <div id="form-header">
+                        <h5 class="card-header info-color white-text text-center py-4">
+                        <strong>Update task</strong>
+                        </h5>
+                    </div>
+                    <div class="card-body px-lg-5 pt-0">
+                        <form class="text-center" style="color: #757575;" action="#!" @submit.prevent="updateTask(update_id)">
+                    
+                            <div class="input-group input-group-sm mb-3">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text" id="inputGroup-sizing-sm">Category</span>
+                                </div>
+                                <input type="text" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="update_title" v-model="update_category">
+                            </div>
+
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                  <span class="input-group-text">Title</span>
+                                </div>
+                                <textarea class="form-control" aria-label="With textarea" value="update_category" v-model="update_title"></textarea>
+                            </div>
+
+                            <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script src="./src/main.js"></script>
+</body>
+</html>
